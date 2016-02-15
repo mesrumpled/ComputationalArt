@@ -1,7 +1,7 @@
 """ 
-Software Design 2016 at Olin College of Engineering.
+Software Design 2016 at Olin College of Engineering
 
-Generates computational art using random recurvive functions.
+Creates computational art using randomly generated functions
 
 @author: March Saper 
 
@@ -15,14 +15,15 @@ from math import *
 
 def build_random_function(min_depth, max_depth):
     """ Builds a random function of depth at least min_depth and depth
-        at most max_depth (see assignment writeup for definition of depth
-        in this context)
+        at most max_depth 
 
         min_depth: the minimum depth of the random function
         max_depth: the maximum depth of the random function
         returns: the randomly generated function represented as a nested list
                  (see assignment writeup for details on the representation of
                  these functions)
+
+        Since this function uses random doctests cannot be simply written
     """
     first_choices = ["prod", "avg", "cos_pi", "sin_pi", "sqr", "cube"]
     middle_choices = ["prod", "avg", "cos_pi", "sin_pi", "sqr", "cube", "x", "y"]
@@ -68,6 +69,8 @@ def evaluate_random_function(f, x, y):
         -0.5
         >>> evaluate_random_function(["y"],0.1,0.02)
         0.02
+        >>> evaluate_random_function(['avg', ['x'], ['y']], 0.2, 0.2)
+        0.2
     """
     if f[0] == "x":
         return x
@@ -92,18 +95,18 @@ def evaluate_random_function(f, x, y):
         return a ** 2
     if f[0] == "cube":
         a = evaluate_random_function(f[1], x, y)
-        return a ** 3
+        return abs(a) ** (1/3)
+
     
-# print evaluate_random_function(build_random_function(5, 7), 1, 1)
+
 
 def remap_interval(val,
                    input_interval_start,
                    input_interval_end,
                    output_interval_start,
                    output_interval_end):
-    """ Given an input value in the interval [input_interval_start,
-        input_interval_end], return an output value scaled to fall within
-        the output interval [output_interval_start, output_interval_end].
+    """ Given an input value and interval returns an output value in the same
+        ratio as the input variable
 
         val: the value to remap
         input_interval_start: the start of the interval that contains all
@@ -190,4 +193,4 @@ if __name__ == '__main__':
     import doctest
     doctest.testmod()
 
-    generate_art("myart3.png")
+    generate_art("myart12.png")
