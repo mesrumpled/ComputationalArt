@@ -11,6 +11,7 @@ Creates computational art using randomly generated functions
 import random
 from PIL import Image
 from math import *
+import time
 
 
 def build_random_function(min_depth, max_depth):
@@ -23,80 +24,48 @@ def build_random_function(min_depth, max_depth):
                  (see assignment writeup for details on the representation of
                  these functions)
 
-        Since this function uses random doctests cannot be simply written
+        Since this function uses "random" doctests cannot be simply written
     """
-    first_choices = ["prod", "avg", "cos_pi", "sin_pi", "sqr", "cube"]
-    middle_choices = ["prod", "avg", "cos_pi", "sin_pi", "sqr", "cube", "x", "y"]
-    last_choices = ["x", "y"]
+    prod = lambda x,y: x*y
+    avg = lambda x,y: .5*(x+y)
+    cos_pi = lambda z: cos(pi*z)
+    sin_pi = lambda z: sin(pi*z)
+    sqr = lambda z: z**2
+    cube = lambda z: z**3
+    x = lambda x,y: x
+    y = lambda x,y: y
 
 
-    if min_depth > 0:
-        chosen_function = random.choice(first_choices)
+
+    first_choices = [prod, avg, cos_pi, sin_pi, sqr, cube]
+    last_choices = [x, y]
+    middle_choices = first_choices + last_choices
+    
+
+
+    if min_depth > 0:	
+        chosen_function = random.choice(first_choices)		# if minimum depth hasn't been reached, only the first list of choices can be used. This insures a long, complex function
     elif max_depth > 0:
-        chosen_function = random.choice(middle_choices)
+        chosen_function = random.choice(middle_choices)		# If minimum depth has been reached, but maximum depth hasn't then any choices can be used
     else:
-        chosen_function = random.choice(last_choices)
+        chosen_function = random.choice(last_choices)		# If the maximum depth has been reached, the only choices are "x" and "y"
 
 
     min_depth = min_depth - 1
     max_depth = max_depth - 1
 
 
-    if chosen_function in ["prod", "avg"]:
+    if chosen_function in [prod, avg]:
         first_argument = build_random_function(min_depth, max_depth)
         second_argument = build_random_function(min_depth, max_depth)
-        return [chosen_function, first_argument, second_argument]
+        return lambda x,y: chosen_function(first_argument(x,y), second_argument(x,y))
 
-    elif chosen_function in ["cos_pi", "sin_pi", "sqr", "cube"]:
+    elif chosen_function in [cos_pi, sin_pi, sqr, cube]:
         argument = build_random_function(min_depth, max_depth)
-        return [chosen_function, argument]
+        return lambda x,y: chosen_function(argument(x,y))
 
     else:
-        return [chosen_function]
-
-
-
-def evaluate_random_function(f, x, y):
-    """ Evaluate the random function f with inputs x,y
-        Representation of the function f is defined in the assignment writeup
-
-        f: the function to evaluate
-        x: the value of x to be used to evaluate the function
-        y: the value of y to be used to evaluate the function
-        returns: the function value
-
-        >>> evaluate_random_function(["x"],-0.5, 0.75)
-        -0.5
-        >>> evaluate_random_function(["y"],0.1,0.02)
-        0.02
-        >>> evaluate_random_function(['avg', ['x'], ['y']], 0.2, 0.2)
-        0.2
-    """
-    if f[0] == "x":
-        return x
-    if f[0] == "y":
-        return y
-    if f[0] == "prod":
-        a = evaluate_random_function(f[1], x, y)
-        b = evaluate_random_function(f[2], x, y)
-        return a * b
-    if f[0] == "avg":
-        a = evaluate_random_function(f[1], x, y)
-        b = evaluate_random_function(f[2], x, y)
-        return 0.5 * (a + b)
-    if f[0] == "cos_pi":
-        a = evaluate_random_function(f[1], x, y)
-        return cos(pi * a)
-    if f[0] == "sin_pi":
-        a = evaluate_random_function(f[1], x, y)
-        return sin(pi * a)
-    if f[0] == "sqr":
-        a = evaluate_random_function(f[1], x, y)
-        return a ** 2
-    if f[0] == "cube":
-        a = evaluate_random_function(f[1], x, y)
-        return abs(a) ** (1/3)
-
+        return chosen_function
     
 
 
@@ -181,9 +150,9 @@ def generate_art(filename, x_size=350, y_size=350):
             x = remap_interval(i, 0, x_size, -1, 1)
             y = remap_interval(j, 0, y_size, -1, 1)
             pixels[i, j] = (
-                    color_map(evaluate_random_function(red_function, x, y)),
-                    color_map(evaluate_random_function(green_function, x, y)),
-                    color_map(evaluate_random_function(blue_function, x, y))
+                    color_map(red_function(x, y)),
+                    color_map(green_function(x, y)),
+                    color_map(blue_function(x, y))
                     )
 
     im.save(filename)
@@ -193,4 +162,5 @@ if __name__ == '__main__':
     import doctest
     doctest.testmod()
 
-    generate_art("myart12.png")
+    filename = time.strftime("%Y-%m-%d-%H:%M")
+    generate_art(filename + ".png")
